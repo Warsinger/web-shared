@@ -1,6 +1,6 @@
 # Shared browser shell
 
-Framework-free browser code extracted from Rover and Game of Life. Rover is the first consumer. This package supplies the responsive page styling, iframe lifecycle and Go/Wasm loading/input bridge. App content, settings validation, controls, colors and simulation stay in each app.
+Framework-free browser code shared by Rover, Game of Life, Tower Defense, Space Invaders and Math Viz. This package supplies responsive page styles, iframe lifecycle, Go/Wasm loading/input and language-neutral startup status. App content, settings validation, controls, colors and simulation stay in each app.
 
 ## Consume
 
@@ -10,21 +10,21 @@ Pin an exact reviewed Git commit tarball in the consumer package.json and commit
 - `browser/go-runtime.mjs`: `startGoGame({wasmURL, inputKeys, latchedKeys, preventKeys})`. Loads raw or gzip Wasm and invokes the consumer's Go runtime. Exposes window.appReady for the first actual Go update and window.appInput for the Go adapter. Input requires the expected parent, origin and session; latched keys remain set until the app consumes them. Blur/hidden state releases input. Runtime failures report app-error. Go's wasm_exec.js must come from the exact compiler toolchain in each consumer and is deliberately not supplied here.
 - `browser/shell.css`: optional Life/Rover page layout, typography, responsive settings and footer styling. Override --accent and --ink in consumer CSS. It styles page elements globally; use it on compatible launcher pages, not blindly on a full-screen canvas app. Shared footer markup stays ordinary app HTML so links and attribution remain available without JavaScript.
 
-The second argument to either JS function is an injectable browser environment for tests; normal callers omit it. APIs currently target same-origin iframe apps. Rust apps can reuse styles and later lifecycle helpers while keeping their own Wasm loader. This package contains no Cloudflare deployment code.
+The second argument to either JS function is an injectable browser environment for tests; normal callers omit it. Iframe APIs target same-origin apps. Full-page Rust apps use the canvas styles and module startup helper while keeping their own Wasm loader. This package contains no Cloudflare deployment code.
 
 ## Verify and release
 
 Node 24+: `npm test` and `npm pack --dry-run`. Tests cover loading, gzip/errors, actual readiness, origin/source/session filtering, restart/error state, focus, controls and input release. Run a real consumer's packaging tests and browser preview before merging. Update code/docs through a reviewed PR, then pin that commit in each consumer update PR. Keep deployment utilities in Warsinger/cloudflare-pages-deploy. Packaging scripts remain in the apps for this first extraction.
 
-## Two page layouts
+## Iframe page layouts
 
 The same readiness/error/focus controller (`browser/frame.mjs`) serves both the settings launcher and simpler embeds. `startEmbeddedGame({readyMessage})` uses #game with data-src and #status; it installs message validation before navigating, adds a random session, focuses the ready canvas, and reports failures with a reload hint. It starts only the runtime; an in-game title screen remains in charge of starting gameplay.
 
-Tower Defense uses `browser/embed.css` for its simple centered frame and `browser/footer.css` for the compact footer. embed.css imports footer.css; copy both into the same shared folder. Optional --app-background, --app-color, --page-width, --frame-width and --frame-aspect variables adapt this layout. footer.css can be used independently without applying either full-page layout. Both layouts are optional; app content and footer links remain ordinary local HTML.
+Tower Defense uses `browser/embed.css` for its simple centered frame and `browser/footer.css` for the compact footer. embed.css imports header.css and footer.css; copy all three into the same shared folder. Optional --app-background, --app-color, --page-width, --frame-width and --frame-aspect variables adapt this layout. footer.css can be used independently without applying either full-page layout. Both layouts are optional; app content and footer links remain ordinary local HTML.
 
-The settings launcher now imports frame.mjs too; all consumers must copy/hash that file along with launcher.mjs. The Go runtime accepts readyCallback (default appReady) for existing native adapters such as towerDefenseReady, and stoppedMessage for app-specific retry text. These options do not change Go or gameplay behavior. Rover and Tower Defense integration previews exercise this shared revision before release.
+The settings launcher now imports frame.mjs too; all consumers must copy/hash that file along with launcher.mjs. The Go runtime accepts readyCallback (default appReady) for existing native adapters such as towerDefenseReady, and stoppedMessage for app-specific retry text. These options do not change Go or gameplay behavior. All five consumer integration previews exercise their pinned shared revisions before release.
 
-Both layout stylesheets import the same footer.css rules; consumers mark their local footer with class="project-footer". The settings layout supplies its wider --footer-width and responsive --footer-padding; the simple layout uses the 900px defaults. Font, link, hover and keyboard-focus styling have one shared source. Consumers must bundle footer.css even when using only shell.css.
+Both layout stylesheets import the same footer.css rules; consumers mark their local footer with class="project-footer". The settings layout supplies its wider --footer-width and responsive --footer-padding; the simple layout uses the 900px defaults. Font, link, hover and keyboard-focus styling have one shared source. Consumers must bundle header.css and footer.css even when using only shell.css.
 
 ## Canvas and language-neutral startup
 
