@@ -1,9 +1,9 @@
 // Go consumers provide wasm_exec.js from the exact toolchain used to compile Wasm.
-export function startGoGame({wasmURL, inputKeys = [], latchedKeys = [], preventKeys = []}, env = globalThis) {
+export function startGoGame({wasmURL, inputKeys = [], latchedKeys = [], preventKeys = [], readyCallback = 'appReady', stoppedMessage = 'Game stopped. Use Apply / restart to run again.'}, env = globalThis) {
   const session = new URLSearchParams(env.location.search).get('session');
   const input = env.appInput = Object.fromEntries(inputKeys.map(key => [key, false]));
   const report = (type, message) => env.parent.postMessage({type, session, message}, env.location.origin);
-  env.appReady = () => report('app-ready');
+  env[readyCallback] = () => report('app-ready');
   env.addEventListener('error', event => report('app-error', String(event.error?.message || event.message)));
   env.addEventListener('unhandledrejection', event => report('app-error', String(event.reason?.message || event.reason)));
   env.addEventListener('message', event => {
@@ -29,7 +29,7 @@ export function startGoGame({wasmURL, inputKeys = [], latchedKeys = [], preventK
       }
       const result = await env.WebAssembly.instantiate(bytes, go.importObject);
       await go.run(result.instance);
-      throw new Error('Game stopped. Use Apply / restart to run again.');
+      throw new Error(stoppedMessage);
     } catch (error) { report('app-error', String(error.message || error)); }
   })();
   return {input, completion};

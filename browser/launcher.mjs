@@ -1,3 +1,4 @@
+import {watchFrame} from './frame.mjs';
 // Shared parent-page lifecycle. App settings and copy are supplied by the caller.
 export function startLauncher({validateOptions, readOptions, readyMessage, heldKeys = []}, env = globalThis) {
   const {document, location} = env;
@@ -7,11 +8,6 @@ export function startLauncher({validateOptions, readOptions, readyMessage, heldK
   let session = '';
   let timeout;
   let ready = false;
-  function focusGame() {
-    frame.focus({preventScroll: true});
-    const canvas = frame.contentDocument?.querySelector('canvas');
-    if (canvas) { canvas.tabIndex = 0; canvas.focus({preventScroll: true}); }
-  }
   function sendInput(key, down) {
     if (ready) frame.contentWindow.postMessage({type:'app-input', session, key, down}, location.origin);
   }
@@ -30,17 +26,11 @@ export function startLauncher({validateOptions, readOptions, readyMessage, heldK
     frame.src = url.href;
     timeout = env.setTimeout(() => { if (!ready) status.textContent = 'Still loading. If the game does not appear, use Apply / restart to retry.'; }, 60000);
   }
-  env.addEventListener('message', event => {
-    if (event.origin !== location.origin || event.source !== frame.contentWindow || event.data?.session !== session) return;
-    if (event.data.type === 'app-ready' && status.dataset.state !== 'runtime-error') {
-      env.clearTimeout(timeout); ready = true; status.dataset.state = 'ready';
-      status.textContent = readyMessage;
-      focusGame();
-    } else if (event.data.type === 'app-error') {
-      env.clearTimeout(timeout); ready = false; status.dataset.state = 'runtime-error';
-      status.textContent = 'Could not run. Apply / restart to retry. ' + event.data.message;
-    }
-  });
+  const {focusGame} = watchFrame({frame, status, getSession: () => session, readyMessage,
+    errorPrefix: 'Could not run. Apply / restart to retry. ',
+    onReady: () => { env.clearTimeout(timeout); ready = true; },
+    onError: () => { env.clearTimeout(timeout); ready = false; }
+  }, env);
   form.addEventListener('submit', launch);
   document.getElementById('focus').addEventListener('click', focusGame);
   document.getElementById('fullscreen').addEventListener('click', async () => {

@@ -37,3 +37,13 @@ test('runtime errors report failures and only configured keys prevent scrolling'
  r.events.get('unhandledrejection')({reason:new Error('promise failed')});assert.equal(r.messages.at(-1).message,'promise failed');
  let prevented=0;for(const code of ['Space','KeyA']) r.events.get('keydown')({code,preventDefault:()=>prevented++});assert.equal(prevented,1);
 });
+
+test('custom native callback reports readiness without requiring Rover input or settings',async()=>{
+ const events=new Map(),messages=[];
+ const env={location:{search:'?session=tower',origin:'https://game.test'},parent:{postMessage:m=>messages.push(m)},document:{addEventListener(){}},addEventListener:(type,fn)=>events.set(type,fn),fetch:async()=>new Response(wasm),WebAssembly,Go:class{importObject={};run(){env.towerDefenseReady();return Promise.resolve();}}};
+ const runtime=startGoGame({wasmURL:'game.wasm',readyCallback:'towerDefenseReady',stoppedMessage:'Game stopped. Reload the page to restart.'},env);
+ await runtime.completion;
+ assert.deepEqual(messages.map(m=>[m.type,m.session]),[['app-ready','tower'],['app-error','tower']]);
+ assert.equal(messages[1].message,'Game stopped. Reload the page to restart.');
+ assert.deepEqual(runtime.input,{});
+});

@@ -1,1 +1,25 @@
-{"name":"@warsinger/web-shared","version":"0.1.0","private":true,"type":"module","description":"Shared static app shell and Go/Wasm browser runtime","files":["browser","README.md"],"exports":{"./launcher":"./browser/launcher.mjs","./go-runtime":"./browser/go-runtime.mjs","./shell.css":"./browser/shell.css"},"scripts":{"test":"node --test test/*.test.mjs"},"engines":{"node":">=24"}}
+{
+  "name": "@warsinger/web-shared",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Shared static app shell and Go/Wasm browser runtime",
+  "files": [
+    "browser",
+    "README.md"
+  ],
+  "exports": {
+    "./launcher": "./browser/launcher.mjs",
+    "./go-runtime": "./browser/go-runtime.mjs",
+    "./shell.css": "./browser/shell.css",
+    "./frame": "./browser/frame.mjs",
+    "./embed.css": "./browser/embed.css",
+    "./footer.css": "./browser/footer.css"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}
