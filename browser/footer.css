@@ -1,4 +1,4 @@
-.project-footer { box-sizing: border-box; flex: none; width: 100%; max-width: 900px; margin: 0 auto; padding: 0 16px 24px; color: #8b9db4; font: 12px/1.7 system-ui, sans-serif; text-align: left; }
+.project-footer { box-sizing: border-box; flex: none; width: 100%; max-width: var(--footer-width, 900px); margin: 0 auto; padding: var(--footer-padding, 0 16px 24px); color: #8b9db4; font: 12px/1.7 system-ui, sans-serif; text-align: left; }
 .project-footer a { color: inherit; text-underline-offset: 4px; }
 .project-footer a:hover { text-decoration-thickness: 2px; }
 .project-footer a:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; border-radius: 2px; }
