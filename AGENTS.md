@@ -1,0 +1,5 @@
+# Shared browser code
+
+Use Warsinger Code Builder and assign every issue/PR to Warsinger; request Warsinger review. Read the local identity helper README first. Keep repository-scoped helper copies in ignored build/agent-work and never print credentials. Use codex/ branches and PRs, closing issue references, and never merge without owner authorization. Use major-version tags for standard GitHub Actions.
+
+Keep this package framework-free and independent of game rules, game settings, Go toolchain versions, Cloudflare credentials and deployment targets. Preserve consumer behavior. Keep browser APIs behind injectable environments for deterministic tests; validate message origin, source and session. Do not ship wasm_exec.js: each Go consumer must use its own matching compiler runtime. Run npm test and npm pack --dry-run. Check a real consumer preview before calling a release verified. Consumers bundle exact revisions; avoid mutable runtime script URLs. Update README for API/consumer changes.

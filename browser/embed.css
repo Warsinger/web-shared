@@ -1,0 +1,8 @@
+@import './header.css';
+@import './footer.css';
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--app-background, #131a22); color: var(--app-color, #dff4ff); font: 16px system-ui, sans-serif; text-align: center; }
+main { max-width: var(--page-width, 900px); margin: auto; padding: 16px; }
+iframe { display: block; border: 1px solid #596c80; margin: 16px auto; width: min(var(--frame-width, 600px), 100%); aspect-ratio: var(--frame-aspect, 3 / 4); background: black; }
+#status[data-state="runtime-error"] { color: #ffb6b6; }
+p { line-height: 1.5; }
