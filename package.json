@@ -17,7 +17,8 @@
     "./footer.css": "./browser/footer.css",
     "./status": "./browser/status.mjs",
     "./module-runtime": "./browser/module-runtime.mjs",
-    "./canvas.css": "./browser/canvas.css"
+    "./canvas.css": "./browser/canvas.css",
+    "./header.css": "./browser/header.css"
   },
   "scripts": {
     "test": "node --test test/*.test.mjs"
