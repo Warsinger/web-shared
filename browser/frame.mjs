@@ -1,5 +1,7 @@
+import {createStatus} from './status.mjs';
 // Shared message trust, runtime status and canvas focus for iframe hosts.
 export function watchFrame({frame, status, getSession, readyMessage, errorPrefix, onReady = () => {}, onError = () => {}}, env = globalThis) {
+  const state = createStatus(status, {readyMessage, errorMessage: error => errorPrefix + error});
   function focusGame() {
     frame.focus({preventScroll: true});
     const canvas = frame.contentDocument?.querySelector('canvas');
@@ -7,12 +9,10 @@ export function watchFrame({frame, status, getSession, readyMessage, errorPrefix
   }
   env.addEventListener('message', event => {
     if (event.origin !== env.location.origin || event.source !== frame.contentWindow || event.data?.session !== getSession()) return;
-    if (event.data.type === 'app-ready' && status.dataset.state !== 'runtime-error') {
-      status.dataset.state = 'ready'; status.textContent = readyMessage;
+    if (event.data.type === 'app-ready' && state.ready()) {
       onReady(); focusGame();
     } else if (event.data.type === 'app-error') {
-      status.dataset.state = 'runtime-error';
-      status.textContent = errorPrefix + event.data.message;
+      state.fail(event.data.message);
       onError();
     }
   });

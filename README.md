@@ -25,3 +25,13 @@ Tower Defense uses `browser/embed.css` for its simple centered frame and `browse
 The settings launcher now imports frame.mjs too; all consumers must copy/hash that file along with launcher.mjs. The Go runtime accepts readyCallback (default appReady) for existing native adapters such as towerDefenseReady, and stoppedMessage for app-specific retry text. These options do not change Go or gameplay behavior. Rover and Tower Defense integration previews exercise this shared revision before release.
 
 Both layout stylesheets import the same footer.css rules; consumers mark their local footer with class="project-footer". The settings layout supplies its wider --footer-width and responsive --footer-padding; the simple layout uses the 900px defaults. Font, link, hover and keyboard-focus styling have one shared source. Consumers must bundle footer.css even when using only shell.css.
+
+## Canvas and language-neutral startup
+
+Full-page canvas apps can use canvas.css (which imports the same footer.css) without an iframe or game controls. The canvas keeps flex:1/min-height:0 while status/footer remain in normal flex flow, so controls are not covered on short or narrow screens.
+
+`createStatus(element, {readyMessage, errorMessage})` owns loading/ready/runtime-error display. errorMessage may be a string or formatter; all text uses textContent. A late ready callback cannot erase a failure. An explicit new-run loading state resets the guard, as used by the settings launcher. iframe hosts use this same controller.
+
+`startModuleApp({start, readyCallback, errorCallback, errorMessage})` installs error/rejection handling and native callbacks (default window.appReady and window.appError) before invoking start. Completion of start does not imply readiness: an asynchronous Rust renderer must signal after its actual startup. This helper does not fetch or interpret language-specific Wasm, manage canvas input, or call a Go runtime. Math Viz retains wasm-bindgen glue generation, its matching Rust versions, egui controls and browser-local history. It calls the installed callbacks from its web-only adapter after WebRunner startup.
+
+When upgrading existing Go consumers, copy/hash status.mjs alongside frame.mjs. All consumers keep exact pinned shared revisions, and every static JS import and CSS import must resolve within the deployed content-addressed asset tree. Math Viz hashes its frontend, shared files and generated Rust glue/Wasm together; frontend-only edits cannot reuse an old immutable runtime URL.
